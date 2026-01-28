@@ -47,6 +47,8 @@
 <button mat-icon-button type="button" (click)="toggleEditor()" [attr.aria-label]="t('app.toggleEditor')"
   [style.position]="'fixed'" [style.zIndex]="2000" [style.top]="'calc(64px + (100vh - 64px)/2)'"
   [style.left]="editorOpen() ? 'calc(50vw)' : '12px'"
-  [style.transform]="editorOpen() ? 'translate(-50%, -50%)' : 'translate(0, -50%)'">
+  [style.transform]="editorOpen() ? 'translate(-50%, -50%)' : 'translate(0, -50%)'"
+  [style.transition]="'left 220ms cubic-bezier(0.4, 0, 0.2, 1), transform 220ms cubic-bezier(0.4, 0, 0.2, 1)'"
+  [style.willChange]="'left, transform'">
   <mat-icon>{{ editorOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
 </button>
