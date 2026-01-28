@@ -1,6 +1,7 @@
 <div class="pl-2" [class.pl-4]="depth > 0">
     <div class="flex items-start gap-2 py-1">
-        <button type="button" class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+        <button type="button"
+            class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800"
             (click)="toggle()" [class.opacity-0]="!isContainer()"
             [attr.aria-label]="isContainer() ? (expanded() ? 'Collapse' : 'Expand') : null">
             <mat-icon class="text-slate-600 dark:text-slate-300" [class.rotate-90]="expanded()">chevron_right</mat-icon>
@@ -59,7 +60,8 @@
                     }
 
                     @if (timeDisplay()) {
-                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay() }}</span>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay()
+                        }}</span>
                     }
                 </span>
                 } @else if (nodeType() === 'number') {
@@ -76,7 +78,8 @@
                     }
                     <span>{{ formatPrimitive() }}</span>
                     @if (timeDisplay()) {
-                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay() }}</span>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay()
+                        }}</span>
                     }
                 </span>
                 } @else if (!isContainer()) {
