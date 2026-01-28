@@ -157,7 +157,7 @@ export function parseTimeFromString(value: string): ParsedTime | null {
     const t = Date.parse(trimmed);
     if (Number.isFinite(t)) {
       const date = new Date(t);
-      return { kind: 'iso', date, display: `东 8 区 ${formatDashDateTime(date, ASIA_SHANGHAI_TZ)}` };
+      return { kind: 'iso', date, display: `UTC+8 ${formatDashDateTime(date, ASIA_SHANGHAI_TZ)}` };
     }
   }
 

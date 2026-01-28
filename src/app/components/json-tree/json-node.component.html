@@ -3,7 +3,7 @@
         <button type="button"
             class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800"
             (click)="toggle()" [class.opacity-0]="!isContainer()"
-            [attr.aria-label]="isContainer() ? (expanded() ? 'Collapse' : 'Expand') : null">
+            [attr.aria-label]="isContainer() ? (expanded() ? t('node.collapse') : t('node.expand')) : null">
             <mat-icon class="text-slate-600 dark:text-slate-300" [class.rotate-90]="expanded()">chevron_right</mat-icon>
         </button>
 
@@ -42,17 +42,17 @@
                     </span>
                     }
 
-                    <span class="block min-w-0 max-w-full whitespace-nowrap" title="base64 image">
+                    <span class="block min-w-0 max-w-full whitespace-nowrap" [title]="t('node.base64ImageTitle')">
                         {{ displayImageString() }}
                     </span>
 
                     <span class="inline-flex items-center gap-1 shrink-0">
                         <button type="button"
                             class="h-6 px-2 text-[11px] rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
-                            (click)="openImagePreview(img)">show</button>
+                            (click)="openImagePreview(img)">{{ t('node.show') }}</button>
                         <button type="button"
                             class="h-6 px-2 text-[11px] rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
-                            (click)="openBase64Text()">text</button>
+                            (click)="openBase64Text()">{{ t('node.text') }}</button>
                     </span>
                     } @else {
                     @if (stringTags().length) {
@@ -70,18 +70,18 @@
 
                     @if (linkHref()) {
                     <a class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
-                        [href]="linkHref()" target="_blank" rel="noopener noreferrer" title="点击打开链接">
+                        [href]="linkHref()" target="_blank" rel="noopener noreferrer" [title]="t('node.openLink')">
                         {{ displayString() }}
                     </a>
                     } @else if (emailHref()) {
                     <a class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
-                        [href]="emailHref()" target="_blank" rel="noopener noreferrer" title="点击发送邮件">
+                        [href]="emailHref()" target="_blank" rel="noopener noreferrer" [title]="t('node.sendEmail')">
                         {{ displayString() }}
                     </a>
                     } @else {
                     <span class="block min-w-0 max-w-full whitespace-nowrap" [class.cursor-pointer]="isLongString()"
                         [class.underline]="isLongString()" [class.decoration-dotted]="isLongString()"
-                        (click)="openFullString()" [title]="isLongString() ? '点击查看完整内容' : null">
+                        (click)="openFullString()" [title]="isLongString() ? t('node.viewFullContent') : null">
                         {{ displayString() }}
                     </span>
                     }

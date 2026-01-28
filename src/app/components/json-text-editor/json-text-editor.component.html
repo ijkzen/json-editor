@@ -2,7 +2,7 @@
     <div class="flex items-center gap-2">
         <button mat-stroked-button type="button" (click)="format.emit()">
             <mat-icon>format_align_left</mat-icon>
-            格式化
+            {{ t('editor.format') }}
         </button>
 
         <div class="min-w-0 flex-1"></div>
@@ -18,6 +18,7 @@
         <pre #highlight class="highlight" aria-hidden="true" [innerHTML]="highlightedHtml"></pre>
 
         <textarea #textarea class="textarea" spellcheck="false" [value]="text"
-            (input)="onInput(($any($event.target).value))" (scroll)="syncScroll()" aria-label="JSON editor"></textarea>
+            (input)="onInput(($any($event.target).value))" (scroll)="syncScroll()"
+            [attr.aria-label]="t('editor.ariaLabel')"></textarea>
     </div>
 </div>

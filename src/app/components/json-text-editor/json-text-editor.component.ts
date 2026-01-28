@@ -1,18 +1,19 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    OnChanges,
-    Output,
-    ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+import { I18nService } from '../../lib/i18n.service';
 import { buildErrorHighlightedHtml } from '../../lib/json-parse';
 
 export type JsonEditorError = {
@@ -39,7 +40,13 @@ export class JsonTextEditorComponent implements AfterViewInit, OnChanges {
 
   protected highlightedHtml: SafeHtml = '' as unknown as SafeHtml;
 
-  constructor(private readonly sanitizer: DomSanitizer) {
+  protected readonly t: I18nService['t'];
+
+  constructor(
+    private readonly sanitizer: DomSanitizer,
+    private readonly i18n: I18nService,
+  ) {
+    this.t = i18n.t;
     this.updateHighlight();
   }
 

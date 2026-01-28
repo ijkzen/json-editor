@@ -5,6 +5,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { I18nService } from '../../lib/i18n.service';
 import { RecognitionSettingsService } from '../../lib/recognition-settings.service';
 import { ThemeSettingsService } from '../../lib/theme-settings.service';
 
@@ -31,8 +32,13 @@ import { ThemeSettingsService } from '../../lib/theme-settings.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsDialogComponent {
+  protected readonly t: I18nService['t'];
+
   constructor(
     protected readonly settings: RecognitionSettingsService,
     protected readonly themeSettings: ThemeSettingsService,
-  ) {}
+    private readonly i18n: I18nService,
+  ) {
+    this.t = i18n.t;
+  }
 }

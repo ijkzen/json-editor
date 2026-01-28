@@ -3,6 +3,14 @@ import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
+    // Make tests deterministic regardless of the host machine/browser locale.
+    try {
+      Object.defineProperty(navigator, 'language', { value: 'en-US', configurable: true });
+      Object.defineProperty(navigator, 'languages', { value: ['en-US', 'en'], configurable: true });
+    } catch {
+      // Ignore if the environment doesn't allow redefining navigator properties.
+    }
+
     if (typeof localStorage?.clear === 'function') {
       localStorage.clear();
     }

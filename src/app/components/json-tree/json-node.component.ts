@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { I18nService } from '../../lib/i18n.service';
 import { JsonNodeType, JsonValue, getJsonNodeType, isContainerType } from '../../lib/json-types';
 import { RecognitionSettingsService } from '../../lib/recognition-settings.service';
 import {
@@ -29,6 +30,8 @@ export class JsonNodeComponent implements OnInit {
   @Input() depth = 0;
 
   protected readonly expanded = signal(false);
+
+  protected readonly t: I18nService['t'];
 
   protected nodeType(): JsonNodeType {
     return getJsonNodeType(this.value);
@@ -127,8 +130,11 @@ export class JsonNodeComponent implements OnInit {
 
   constructor(
     private readonly dialog: MatDialog,
-    private readonly settings: RecognitionSettingsService
-  ) {}
+    private readonly settings: RecognitionSettingsService,
+    private readonly i18n: I18nService,
+  ) {
+    this.t = i18n.t;
+  }
 
   private toRgbaString(rgba: { r: number; g: number; b: number; a: number }): string {
     const a = Number(rgba.a.toFixed(3));
@@ -216,7 +222,7 @@ export class JsonNodeComponent implements OnInit {
 
     this.dialog.open(JsonImageDialogComponent, {
       data: {
-        title: typeof this.nodeKey === 'string' ? this.nodeKey : '图片',
+        title: typeof this.nodeKey === 'string' ? this.nodeKey : this.t('dialog.image'),
         dataUrl: info.dataUrl,
       },
       maxWidth: 'min(1000px, 95vw)',
@@ -229,7 +235,7 @@ export class JsonNodeComponent implements OnInit {
 
     this.dialog.open(JsonStringDialogComponent, {
       data: {
-        title: typeof this.nodeKey === 'string' ? this.nodeKey : '内容',
+        title: typeof this.nodeKey === 'string' ? this.nodeKey : this.t('dialog.content'),
         value: this.value as string,
       },
       maxWidth: 'min(900px, 95vw)',
@@ -243,7 +249,7 @@ export class JsonNodeComponent implements OnInit {
 
     this.dialog.open(JsonStringDialogComponent, {
       data: {
-        title: typeof this.nodeKey === 'string' ? this.nodeKey : '内容',
+        title: typeof this.nodeKey === 'string' ? this.nodeKey : this.t('dialog.content'),
         value: this.value as string,
       },
       maxWidth: 'min(900px, 95vw)',

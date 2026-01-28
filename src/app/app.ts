@@ -7,6 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { JsonTextEditorComponent } from './components/json-text-editor/json-text-editor.component';
 import { JsonTreeComponent } from './components/json-tree/json-tree.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
+import { I18nService } from './lib/i18n.service';
 import { JsonParseError, tryParseJson } from './lib/json-parse';
 import { JsonValue } from './lib/json-types';
 import { ThemeSettingsService } from './lib/theme-settings.service';
@@ -65,14 +66,24 @@ export class App {
   protected readonly parseError = signal<JsonParseError | null>(null);
   protected readonly lastValidValue = signal<JsonValue>({});
 
+  protected readonly t: I18nService['t'];
+  protected readonly locale: I18nService['locale'];
+
   constructor(
     private readonly dialog: MatDialog,
     protected readonly themeSettings: ThemeSettingsService,
+    private readonly i18n: I18nService,
   ) {
+    this.t = i18n.t;
+    this.locale = i18n.locale;
     const restored = this.loadSavedJsonText();
     const initialText = restored ?? SAMPLE_JSON;
     this.jsonText.set(initialText);
     this.reparse(initialText, { persist: false });
+  }
+
+  protected toggleLanguage(): void {
+    this.i18n.toggleLocale();
   }
 
   protected openSettings(): void {
