@@ -11,6 +11,8 @@ import { JsonParseError, tryParseJson } from './lib/json-parse';
 import { JsonValue } from './lib/json-types';
 import { ThemeSettingsService } from './lib/theme-settings.service';
 
+const JSON_TEXT_STORAGE_KEY = 'json-editor:saved-json-text:v1';
+
 const SAMPLE_JSON = `{
   "user": {
     "name": "Alice",
@@ -58,7 +60,7 @@ export class App {
   protected readonly title = signal('json-editor');
   protected readonly editorOpen = signal(true);
 
-  protected readonly jsonText = signal(SAMPLE_JSON);
+  protected readonly jsonText = signal('');
   protected readonly parseError = signal<JsonParseError | null>(null);
   protected readonly lastValidValue = signal<JsonValue>({});
 
@@ -66,7 +68,10 @@ export class App {
     private readonly dialog: MatDialog,
     protected readonly themeSettings: ThemeSettingsService,
   ) {
-    this.reparse(SAMPLE_JSON);
+    const restored = this.loadSavedJsonText();
+    const initialText = restored ?? SAMPLE_JSON;
+    this.jsonText.set(initialText);
+    this.reparse(initialText, { persist: false });
   }
 
   protected openSettings(): void {
@@ -100,13 +105,38 @@ export class App {
     }
   }
 
-  private reparse(text: string): void {
+  private reparse(text: string, options?: { persist?: boolean }): void {
+    const persist = options?.persist ?? true;
     const result = tryParseJson(text);
     if (result.ok) {
       this.parseError.set(null);
       this.lastValidValue.set(result.value as JsonValue);
+      if (persist) this.saveJsonText(text);
       return;
     }
     this.parseError.set(result.error);
+  }
+
+  private loadSavedJsonText(): string | null {
+    try {
+      if (typeof localStorage === 'undefined') return null;
+      if (typeof localStorage.getItem !== 'function') return null;
+      const value = localStorage.getItem(JSON_TEXT_STORAGE_KEY);
+      if (!value) return null;
+      const parsed = tryParseJson(value);
+      return parsed.ok ? value : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private saveJsonText(text: string): void {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      if (typeof localStorage.setItem !== 'function') return;
+      localStorage.setItem(JSON_TEXT_STORAGE_KEY, text);
+    } catch {
+      // Ignore storage errors (e.g., privacy mode/quota).
+    }
   }
 }

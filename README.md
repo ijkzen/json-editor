@@ -9,6 +9,7 @@ A lightweight JSON text editor + tree viewer built with Angular 21 (standalone),
 - Text editor with an overlay highlighter for JSON parse errors (highlights the error character position when available).
 - One-click JSON formatting (only when JSON is valid).
 - When JSON is invalid, the tree stays stable and shows the last valid parsed value.
+- When JSON is valid, the current JSON text is persisted to `localStorage`; reopening the page restores it automatically (only restores syntactically valid JSON).
 - Collapsible editor panel.
 - Built-in sample JSON (reset with one click).
 - Recursive tree view with expand/collapse (expands only the root level by default).
