@@ -1,0 +1,21 @@
+<div class="h-full flex flex-col gap-2">
+    <div class="flex items-center gap-2">
+        <button mat-stroked-button type="button" (click)="format.emit()">
+            <mat-icon>format_align_left</mat-icon>
+            格式化
+        </button>
+
+        <div class="min-w-0 flex-1"></div>
+
+        <div *ngIf="error" class="text-xs text-red-700 truncate" [title]="error.message">
+            {{ error.message }}
+        </div>
+    </div>
+
+    <div class="editor flex-1">
+        <pre #highlight class="highlight" aria-hidden="true" [innerHTML]="highlightedHtml"></pre>
+
+        <textarea #textarea class="textarea" spellcheck="false" [value]="text"
+            (input)="onInput(($any($event.target).value))" (scroll)="syncScroll()" aria-label="JSON editor"></textarea>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="pl-2" [class.pl-4]="depth > 0">
+    <div class="flex items-start gap-2 py-1">
+        <button type="button" class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100"
+            (click)="toggle()" [class.opacity-0]="!isContainer()"
+            [attr.aria-label]="isContainer() ? (expanded() ? 'Collapse' : 'Expand') : null">
+            <mat-icon class="text-slate-600" [class.rotate-90]="expanded()">chevron_right</mat-icon>
+        </button>
+
+        <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span *ngIf="nodeKey !== null" class="font-mono text-slate-800">
+                    <span *ngIf="typeof nodeKey === 'string'">{{ nodeKey }}</span>
+                    <span *ngIf="typeof nodeKey !== 'string'">[{{ nodeKey }}]</span>
+                    <span class="text-slate-400">:</span>
+                </span>
+
+                <span *ngIf="isContainer()" class="font-mono text-xs px-2 py-0.5 rounded bg-slate-100"
+                    [ngClass]="typeClass()">
+                    {{ containerSummary() }}
+                </span>
+
+                <span *ngIf="nodeType() === 'string'" class="font-mono inline-flex items-center gap-1 max-w-full" [ngClass]="typeClass()">
+                    <span *ngIf="stringTags().length" class="inline-flex items-center gap-0.5 shrink-0">
+                        <span *ngFor="let tag of stringTags()"
+                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border"
+                            [ngClass]="{
+                  'bg-white text-slate-700 border-slate-200': tag.kind === 'phone',
+                  'border-slate-200': tag.kind === 'color'
+                }" [style.backgroundColor]="tag.kind === 'color' ? tag.cssColor : null"
+                            [style.color]="tag.kind === 'color' ? tag.textColor : null">
+                            {{ tag.label }}
+                        </span>
+                    </span>
+
+                    <span
+                        class="block min-w-0 max-w-full whitespace-nowrap"
+                        [class.cursor-pointer]="isLongString()"
+                        [class.underline]="isLongString()"
+                        [class.decoration-dotted]="isLongString()"
+                        (click)="openFullString()"
+                        [title]="isLongString() ? '点击查看完整内容' : null"
+                    >
+                        {{ displayString() }}
+                    </span>
+                </span>
+
+                <span *ngIf="!isContainer() && nodeType() !== 'string'" class="font-mono" [ngClass]="typeClass()">
+                    {{ formatPrimitive() }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isContainer() && expanded()" class="border-l border-slate-200 ml-3">
+        <app-json-node *ngFor="let child of children(); trackBy: trackByChildKey" [nodeKey]="child.key" [value]="child.value"
+            [depth]="depth + 1" />
+    </div>
+</div>
