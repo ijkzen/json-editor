@@ -3,7 +3,14 @@ export type StringTag =
   | { kind: 'time'; label: 'time' }
   | { kind: 'link'; label: 'link' }
   | { kind: 'email'; label: 'email' }
-  | { kind: 'color'; label: 'color'; cssColor: string; textColor: string };
+  | {
+      kind: 'color';
+      label: 'color';
+      raw: string;
+      cssColor: string;
+      textColor: string;
+      rgba: { r: number; g: number; b: number; a: number };
+    };
 
 export function getStringTags(value: string): StringTag[] {
   const tags: StringTag[] = [];
@@ -26,7 +33,7 @@ export function getStringTags(value: string): StringTag[] {
 
   const color = parseCssColor(value);
   if (color) {
-    tags.push({ kind: 'color', label: 'color', cssColor: color.cssColor, textColor: color.textColor });
+    tags.push({ kind: 'color', label: 'color', raw: color.raw, cssColor: color.cssColor, textColor: color.textColor, rgba: color.rgba });
   }
 
   return tags;
@@ -235,25 +242,34 @@ function getDateTimeParts(
 
 type ParsedColor = { cssColor: string; textColor: string };
 
-function parseCssColor(value: string): ParsedColor | null {
+type Rgba = { r: number; g: number; b: number; a: number };
+
+function parseCssColor(value: string): (ParsedColor & { rgba: Rgba; raw: string }) | null {
   const trimmed = value.trim();
+
+  const argb = parseArgbHex(trimmed);
+  if (argb) {
+    return { raw: trimmed, cssColor: rgbaToCss(argb), textColor: idealTextColor(argb.r, argb.g, argb.b), rgba: argb };
+  }
 
   const hex = parseHex(trimmed);
   if (hex) {
-    const rgb = hexToRgb(hex);
-    const textColor = rgb ? idealTextColor(rgb.r, rgb.g, rgb.b) : '#000';
-    return { cssColor: trimmed, textColor };
+    const rgba = hexToRgba(hex);
+    const textColor = rgba ? idealTextColor(rgba.r, rgba.g, rgba.b) : '#000';
+    if (!rgba) return null;
+    return { raw: trimmed, cssColor: rgbaToCss(rgba), textColor, rgba };
   }
 
   const rgb = parseRgb(trimmed);
   if (rgb) {
-    return { cssColor: trimmed, textColor: idealTextColor(rgb.r, rgb.g, rgb.b) };
+    return { raw: trimmed, cssColor: rgbaToCss(rgb), textColor: idealTextColor(rgb.r, rgb.g, rgb.b), rgba: rgb };
   }
 
   const hsl = parseHsl(trimmed);
   if (hsl) {
     const rgb2 = hslToRgb(hsl.h, hsl.s, hsl.l);
-    return { cssColor: trimmed, textColor: idealTextColor(rgb2.r, rgb2.g, rgb2.b) };
+    const rgba: Rgba = { ...rgb2, a: hsl.a };
+    return { raw: trimmed, cssColor: rgbaToCss(rgba), textColor: idealTextColor(rgb2.r, rgb2.g, rgb2.b), rgba };
   }
 
   return null;
@@ -264,31 +280,44 @@ function parseHex(value: string): string | null {
   return value;
 }
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const raw = hex.replace('#', '');
-  const normalized =
-    raw.length === 3
-      ? raw
-          .split('')
-          .map((c) => c + c)
-          .join('')
-      : raw.length === 4
-        ? raw
-            .slice(0, 3)
-            .split('')
-            .map((c) => c + c)
-            .join('')
-        : raw.slice(0, 6);
-
-  if (normalized.length !== 6) return null;
-  const r = parseInt(normalized.slice(0, 2), 16);
-  const g = parseInt(normalized.slice(2, 4), 16);
-  const b = parseInt(normalized.slice(4, 6), 16);
-  if (![r, g, b].every((n) => Number.isFinite(n))) return null;
-  return { r, g, b };
+function parseArgbHex(value: string): Rgba | null {
+  // Unambiguous ARGB: 0xAARRGGBB (common in Android/Flutter etc.)
+  const match = value.match(/^(?:0x|0X)([0-9a-fA-F]{8})$/);
+  if (!match) return null;
+  const raw = match[1];
+  const a = parseInt(raw.slice(0, 2), 16) / 255;
+  const r = parseInt(raw.slice(2, 4), 16);
+  const g = parseInt(raw.slice(4, 6), 16);
+  const b = parseInt(raw.slice(6, 8), 16);
+  if (![r, g, b, a].every((n) => Number.isFinite(n))) return null;
+  return { r, g, b, a: clamp01(a) };
 }
 
-function parseRgb(value: string): { r: number; g: number; b: number } | null {
+function hexToRgba(hex: string): Rgba | null {
+  const raw = hex.replace('#', '');
+
+  if (raw.length === 3 || raw.length === 4) {
+    const r = parseInt(raw[0] + raw[0], 16);
+    const g = parseInt(raw[1] + raw[1], 16);
+    const b = parseInt(raw[2] + raw[2], 16);
+    const a = raw.length === 4 ? parseInt(raw[3] + raw[3], 16) / 255 : 1;
+    if (![r, g, b, a].every((n) => Number.isFinite(n))) return null;
+    return { r, g, b, a: clamp01(a) };
+  }
+
+  if (raw.length === 6 || raw.length === 8) {
+    const r = parseInt(raw.slice(0, 2), 16);
+    const g = parseInt(raw.slice(2, 4), 16);
+    const b = parseInt(raw.slice(4, 6), 16);
+    const a = raw.length === 8 ? parseInt(raw.slice(6, 8), 16) / 255 : 1;
+    if (![r, g, b, a].every((n) => Number.isFinite(n))) return null;
+    return { r, g, b, a: clamp01(a) };
+  }
+
+  return null;
+}
+
+function parseRgb(value: string): Rgba | null {
   const match = value.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
   if (!match) return null;
 
@@ -300,12 +329,13 @@ function parseRgb(value: string): { r: number; g: number; b: number } | null {
   if (match[4] !== undefined) {
     const a = Number(match[4]);
     if (!(Number.isFinite(a) && a >= 0 && a <= 1)) return null;
+    return { r, g, b, a: clamp01(a) };
   }
 
-  return { r, g, b };
+  return { r, g, b, a: 1 };
 }
 
-function parseHsl(value: string): { h: number; s: number; l: number } | null {
+function parseHsl(value: string): { h: number; s: number; l: number; a: number } | null {
   const match = value.match(/^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%(?:\s*,\s*([\d.]+))?\s*\)$/i);
   if (!match) return null;
 
@@ -315,12 +345,13 @@ function parseHsl(value: string): { h: number; s: number; l: number } | null {
   if (![h, s, l].every((n) => Number.isFinite(n))) return null;
   if (s < 0 || s > 100 || l < 0 || l > 100) return null;
 
+  let a = 1;
   if (match[4] !== undefined) {
-    const a = Number(match[4]);
+    a = Number(match[4]);
     if (!(Number.isFinite(a) && a >= 0 && a <= 1)) return null;
   }
 
-  return { h: ((h % 360) + 360) % 360, s: s / 100, l: l / 100 };
+  return { h: ((h % 360) + 360) % 360, s: s / 100, l: l / 100, a: clamp01(a) };
 }
 
 function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: number } {
@@ -351,4 +382,13 @@ function idealTextColor(r: number, g: number, b: number): string {
   // Relative luminance (sRGB), quick heuristic.
   const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
   return luminance < 0.5 ? '#ffffff' : '#111827'; // white / slate-900
+}
+
+function rgbaToCss(rgba: Rgba): string {
+  const a = Number(rgba.a.toFixed(3));
+  return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${a})`;
+}
+
+function clamp01(v: number): number {
+  return Math.min(1, Math.max(0, v));
 }

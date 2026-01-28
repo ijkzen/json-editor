@@ -27,7 +27,7 @@
                             [ngClass]="{
                   'bg-white text-slate-700 border-slate-200': tag.kind === 'phone' || tag.kind === 'time' || tag.kind === 'link' || tag.kind === 'email',
                   'border-slate-200': tag.kind === 'color'
-                }" [style.backgroundColor]="tag.kind === 'color' ? tag.cssColor : null"
+                }" [style.backgroundColor]="tag.kind === 'color' ? colorCss(tag) : null"
                             [style.color]="tag.kind === 'color' ? tag.textColor : null">
                             {{ tag.label }}
                         </span>

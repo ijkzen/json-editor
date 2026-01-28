@@ -1,10 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { JsonTextEditorComponent } from './components/json-text-editor/json-text-editor.component';
 import { JsonTreeComponent } from './components/json-tree/json-tree.component';
+import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import { JsonParseError, tryParseJson } from './lib/json-parse';
 import { JsonValue } from './lib/json-types';
 
@@ -16,6 +18,10 @@ const SAMPLE_JSON = `{
     "email": "support@example.com",
     "website": "https://angular.dev",
     "favoriteColor": "#7c3aed",
+    "favoriteColorRgba": "rgba(124, 58, 237, 0.65)",
+    "favoriteColorHex8Rgba": "#7C3AEDA6",
+    "favoriteColorHex8Argb": "#A67C3AED",
+    "favoriteColorArgb": "0xA67C3AED",
     "age": 28,
     "vip": true,
     "createdAtMs": 1759251661333,
@@ -39,6 +45,7 @@ const SAMPLE_JSON = `{
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     MatSidenavModule,
     JsonTextEditorComponent,
     JsonTreeComponent,
@@ -54,8 +61,16 @@ export class App {
   protected readonly parseError = signal<JsonParseError | null>(null);
   protected readonly lastValidValue = signal<JsonValue>({});
 
-  constructor() {
+  constructor(private readonly dialog: MatDialog) {
     this.reparse(SAMPLE_JSON);
+  }
+
+  protected openSettings(): void {
+    this.dialog.open(SettingsDialogComponent, {
+      maxWidth: 'min(680px, 92vw)',
+      width: 'min(680px, 92vw)',
+      autoFocus: false,
+    });
   }
 
   protected toggleEditor(): void {

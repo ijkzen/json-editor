@@ -3,7 +3,8 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angu
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { JsonNodeType, JsonValue, getJsonNodeType, isContainerType } from '../../lib/json-types';
-import { getNumberTags, getStringTags, parseEmail, parseLink, parseTimeFromNumber, parseTimeFromString } from '../../lib/string-tags';
+import { RecognitionSettingsService } from '../../lib/recognition-settings.service';
+import { StringTag, getNumberTags, getStringTags, parseEmail, parseLink, parseTimeFromNumber, parseTimeFromString } from '../../lib/string-tags';
 import { JsonStringDialogComponent } from './json-string-dialog.component';
 
 @Component({
@@ -48,15 +49,48 @@ export class JsonNodeComponent implements OnInit {
 
   protected stringTags() {
     if (this.nodeType() !== 'string') return [];
-    return getStringTags(this.value as string);
+    const tags = getStringTags(this.value as string).filter((t) => this.settings.isEnabled(t.kind));
+    return this.pickPrimaryTags(tags);
   }
 
   protected numberTags() {
     if (this.nodeType() !== 'number') return [];
-    return getNumberTags(this.value as number);
+    const tags = getNumberTags(this.value as number).filter((t) => this.settings.isEnabled(t.kind));
+    return this.pickPrimaryTags(tags);
+  }
+
+  private pickPrimaryTags(tags: StringTag[]): StringTag[] {
+    if (!tags.length) return [];
+
+    const priority: Array<StringTag['kind']> = ['time', 'color', 'phone', 'link', 'email'];
+    for (const kind of priority) {
+      const hit = tags.find((t) => t.kind === kind);
+      if (hit) return [hit];
+    }
+
+    // Fallback: preserve existing order.
+    return [tags[0]];
+  }
+
+  protected colorCss(tag: Extract<StringTag, { kind: 'color' }>): string {
+    const raw = tag.raw;
+
+    // 8-digit hex is ambiguous; interpret based on user setting.
+    if (/^#[0-9a-fA-F]{8}$/.test(raw)) {
+      const rgba =
+        this.settings.colorFormat() === 'rgba'
+          ? this.parseHex8Rrggbbaa(raw)
+          : this.parseHex8Aarrggbb(raw);
+      return this.toRgbaString(rgba);
+    }
+
+    // For other formats, just use the parsed RGBA.
+    return this.toRgbaString(tag.rgba);
   }
 
   protected timeDisplay(): string | null {
+    if (!this.settings.time()) return null;
+    if (!this.settings.timeShowFormatted()) return null;
     const t = this.nodeType();
     if (t === 'number') {
       const parsed = parseTimeFromNumber(this.value as number);
@@ -70,17 +104,33 @@ export class JsonNodeComponent implements OnInit {
   }
 
   protected linkHref(): string | null {
+    if (!this.settings.link()) return null;
     if (this.nodeType() !== 'string') return null;
     return parseLink(this.value as string)?.href ?? null;
   }
 
   protected emailHref(): string | null {
+    if (!this.settings.email()) return null;
     if (this.nodeType() !== 'string') return null;
     const email = parseEmail(this.value as string)?.address;
     return email ? `mailto:${email}` : null;
   }
 
-  constructor(private readonly dialog: MatDialog) {}
+  constructor(
+    private readonly dialog: MatDialog,
+    private readonly settings: RecognitionSettingsService
+  ) {}
+
+  private toRgbaString(rgba: { r: number; g: number; b: number; a: number }): string {
+    const a = Number(rgba.a.toFixed(3));
+    return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${a})`;
+  }
+
+  private toRgbaHexString(rgba: { r: number; g: number; b: number; a: number }): string {
+    // CSS hex with alpha is #RRGGBBAA
+    const a = clampByte(Math.round(rgba.a * 255));
+    return `#${toHex2(rgba.r)}${toHex2(rgba.g)}${toHex2(rgba.b)}${toHex2(a)}`.toUpperCase();
+  }
 
   ngOnInit(): void {
     // Default: only expand the very first layer (root).
@@ -149,6 +199,32 @@ export class JsonNodeComponent implements OnInit {
       width: 'min(900px, 95vw)',
     });
   }
+
+  private parseHex8Rrggbbaa(hex: string): { r: number; g: number; b: number; a: number } {
+    const raw = hex.replace('#', '');
+    const r = parseInt(raw.slice(0, 2), 16);
+    const g = parseInt(raw.slice(2, 4), 16);
+    const b = parseInt(raw.slice(4, 6), 16);
+    const a = parseInt(raw.slice(6, 8), 16) / 255;
+    return { r, g, b, a: Math.min(1, Math.max(0, a)) };
+  }
+
+  private parseHex8Aarrggbb(hex: string): { r: number; g: number; b: number; a: number } {
+    const raw = hex.replace('#', '');
+    const a = parseInt(raw.slice(0, 2), 16) / 255;
+    const r = parseInt(raw.slice(2, 4), 16);
+    const g = parseInt(raw.slice(4, 6), 16);
+    const b = parseInt(raw.slice(6, 8), 16);
+    return { r, g, b, a: Math.min(1, Math.max(0, a)) };
+  }
+}
+
+function toHex2(n: number): string {
+  return clampByte(n).toString(16).padStart(2, '0');
+}
+
+function clampByte(n: number): number {
+  return Math.min(255, Math.max(0, n));
 }
 
 function middleEllipsis(text: string, maxLen: number): string {
