@@ -22,6 +22,11 @@
     color: rgb(15 23 42);
 }
 
+:host-context(html.dark) .highlight {
+    background: rgb(2 6 23);
+    color: rgb(226 232 240);
+}
+
 .textarea {
     position: absolute;
     inset: 0;
@@ -38,6 +43,11 @@
     color: transparent;
     caret-color: rgb(15 23 42);
     outline: none;
+}
+
+:host-context(html.dark) .textarea {
+    border-color: rgb(51 65 85);
+    caret-color: rgb(226 232 240);
 }
 
 .textarea:focus {

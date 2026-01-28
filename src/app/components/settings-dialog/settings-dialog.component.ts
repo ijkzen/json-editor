@@ -6,6 +6,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RecognitionSettingsService } from '../../lib/recognition-settings.service';
+import { ThemeSettingsService } from '../../lib/theme-settings.service';
 
 @Component({
   selector: 'app-settings-dialog',
@@ -30,5 +31,8 @@ import { RecognitionSettingsService } from '../../lib/recognition-settings.servi
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsDialogComponent {
-  constructor(protected readonly settings: RecognitionSettingsService) {}
+  constructor(
+    protected readonly settings: RecognitionSettingsService,
+    protected readonly themeSettings: ThemeSettingsService,
+  ) {}
 }

@@ -145,19 +145,19 @@ export class JsonNodeComponent implements OnInit {
   protected typeClass(): string {
     switch (this.nodeType()) {
       case 'string':
-        return 'text-emerald-700';
+        return 'text-emerald-700 dark:text-emerald-300';
       case 'number':
-        return 'text-sky-700';
+        return 'text-sky-700 dark:text-sky-300';
       case 'boolean':
-        return 'text-purple-700';
+        return 'text-purple-700 dark:text-purple-300';
       case 'null':
-        return 'text-slate-500';
+        return 'text-slate-500 dark:text-slate-400';
       case 'array':
-        return 'text-amber-700';
+        return 'text-amber-700 dark:text-amber-300';
       case 'object':
-        return 'text-cyan-700';
+        return 'text-cyan-700 dark:text-cyan-300';
       default:
-        return 'text-slate-700';
+        return 'text-slate-700 dark:text-slate-200';
     }
   }
 

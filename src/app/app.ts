@@ -9,6 +9,7 @@ import { JsonTreeComponent } from './components/json-tree/json-tree.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import { JsonParseError, tryParseJson } from './lib/json-parse';
 import { JsonValue } from './lib/json-types';
+import { ThemeSettingsService } from './lib/theme-settings.service';
 
 const SAMPLE_JSON = `{
   "user": {
@@ -51,7 +52,7 @@ const SAMPLE_JSON = `{
     JsonTreeComponent,
   ],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('json-editor');
@@ -61,7 +62,10 @@ export class App {
   protected readonly parseError = signal<JsonParseError | null>(null);
   protected readonly lastValidValue = signal<JsonValue>({});
 
-  constructor(private readonly dialog: MatDialog) {
+  constructor(
+    private readonly dialog: MatDialog,
+    protected readonly themeSettings: ThemeSettingsService,
+  ) {
     this.reparse(SAMPLE_JSON);
   }
 

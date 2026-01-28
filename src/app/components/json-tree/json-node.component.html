@@ -1,26 +1,26 @@
 <div class="pl-2" [class.pl-4]="depth > 0">
     <div class="flex items-start gap-2 py-1">
-        <button type="button" class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100"
+        <button type="button" class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800"
             (click)="toggle()" [class.opacity-0]="!isContainer()"
             [attr.aria-label]="isContainer() ? (expanded() ? 'Collapse' : 'Expand') : null">
-            <mat-icon class="text-slate-600" [class.rotate-90]="expanded()">chevron_right</mat-icon>
+            <mat-icon class="text-slate-600 dark:text-slate-300" [class.rotate-90]="expanded()">chevron_right</mat-icon>
         </button>
 
         <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
                 @if (nodeKey !== null) {
-                <span class="font-mono text-slate-800">
+                <span class="font-mono text-slate-800 dark:text-slate-100">
                     @if (typeof nodeKey === 'string') {
                     <span>{{ nodeKey }}</span>
                     } @else {
                     <span>[{{ nodeKey }}]</span>
                     }
-                    <span class="text-slate-400">:</span>
+                    <span class="text-slate-400 dark:text-slate-500">:</span>
                 </span>
                 }
 
                 @if (isContainer()) {
-                <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 {{ typeClass() }}">
+                <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 {{ typeClass() }}">
                     {{ containerSummary() }}
                 </span>
                 }
@@ -31,8 +31,7 @@
                     <span class="inline-flex items-center gap-0.5 shrink-0">
                         @for (tag of stringTags(); track tag.kind) {
                         <span
-                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border border-slate-200"
-                            [class.bg-white]="tag.kind !== 'color'" [class.text-slate-700]="tag.kind !== 'color'"
+                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
                             [style.backgroundColor]="tag.kind === 'color' ? colorCss(tag) : null"
                             [style.color]="tag.kind === 'color' ? tag.textColor : null">
                             {{ tag.label }}
@@ -60,7 +59,7 @@
                     }
 
                     @if (timeDisplay()) {
-                    <span class="text-[11px] text-slate-500 font-mono shrink-0">{{ timeDisplay() }}</span>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay() }}</span>
                     }
                 </span>
                 } @else if (nodeType() === 'number') {
@@ -69,7 +68,7 @@
                     <span class="inline-flex items-center gap-0.5 shrink-0">
                         @for (tag of numberTags(); track tag.kind) {
                         <span
-                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border bg-white text-slate-700 border-slate-200">
+                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700">
                             {{ tag.label }}
                         </span>
                         }
@@ -77,7 +76,7 @@
                     }
                     <span>{{ formatPrimitive() }}</span>
                     @if (timeDisplay()) {
-                    <span class="text-[11px] text-slate-500 font-mono shrink-0">{{ timeDisplay() }}</span>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay() }}</span>
                     }
                 </span>
                 } @else if (!isContainer()) {
@@ -90,7 +89,7 @@
     </div>
 
     @if (isContainer() && expanded()) {
-    <div class="border-l border-slate-200 ml-3">
+    <div class="border-l border-slate-200 dark:border-slate-700 ml-3">
         @for (child of children(); track child.key) {
         <app-json-node [nodeKey]="child.key" [value]="child.value" [depth]="depth + 1" />
         }

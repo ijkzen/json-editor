@@ -9,9 +9,9 @@
   <button mat-stroked-button type="button" (click)="resetSample()">示例</button>
 </mat-toolbar>
 
-<mat-sidenav-container class="h-[calc(100vh-64px)] bg-slate-50 relative">
+<mat-sidenav-container class="h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 relative">
   <mat-sidenav mode="side" [opened]="editorOpen()" [style.width.%]="50" [style.maxWidth.%]="50"
-    class="min-w-0 p-4 bg-slate-50">
+    class="min-w-0 p-4 bg-slate-50 dark:bg-slate-950">
     <app-json-text-editor [text]="jsonText()" [error]="parseError()" (textChange)="onTextChange($event)"
       (format)="formatJson()" />
   </mat-sidenav>
@@ -19,9 +19,10 @@
   <mat-sidenav-content class="p-4 h-full">
     <div class="h-full flex flex-col gap-3">
       <div class="flex items-center gap-2">
-        <div class="text-sm text-slate-600">树状结构</div>
+        <div class="text-sm text-slate-600 dark:text-slate-300">树状结构</div>
         @if (parseError()) {
-        <div class="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700" [title]="parseError()?.message || ''">
+        <div class="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+          [title]="parseError()?.message || ''">
           JSON 无效，右侧展示上一次正确结果
         </div>
         }
