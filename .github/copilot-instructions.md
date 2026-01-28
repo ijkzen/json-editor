@@ -1,19 +1,22 @@
 # Copilot instructions (json-editor)
 
 ## Project snapshot
-- Angular v21 standalone app, no NgModules. Entry: `src/main.ts` bootstraps `App`.
+- Angular v21 standalone app (no NgModules). Entry: `src/main.ts` bootstraps `App`.
 - UI = Angular Material + Tailwind; global styles in `src/styles.scss` (Material theme + `@tailwind ...`).
+- Templates use built-in control flow (`@if`, `@for`) and avoid legacy structural directives.
 
 ## Dev workflows (preferred)
 - Install: `pnpm i` (repo uses `pnpm@10`; see `package.json#packageManager`).
 - Dev server: `pnpm start` (http://localhost:4200).
-- Unit tests: `pnpm test` (Angular builder + Vitest; see `README.md`).
+- Unit tests: `pnpm test` (Angular builder + Vitest; see `README.md`). Runs in watch mode.
 - Build: `pnpm build`.
+- Build (watch): `pnpm watch`.
 
 ## Architecture & data flow (read these first)
-- `App` (`src/app/app.ts` + `src/app/app.html`) owns the state via Angular `signal()`:
+- `App` (`src/app/app.ts` + `src/app/app.html`) owns state via Angular `signal()`:
 	- `jsonText` → passed to `JsonTextEditorComponent`.
-	- `parseError` + `lastValidValue` → keeps rendering the last valid tree when current JSON is invalid.
+	- `parseError` + `lastValidValue` → tree renders `lastValidValue()` so UI stays stable when JSON is invalid.
+- Parsing happens in `App.reparse()` using `tryParseJson()`.
 - Parsing + editor highlighting lives in `src/app/lib/json-parse.ts`:
 	- `tryParseJson()` returns `{ok,value}` or `{ok:false,error:{message,position}}`.
 	- `buildErrorHighlightedHtml()` escapes HTML and wraps the error character.
@@ -24,15 +27,20 @@
 - Tag toggles are persisted in `RecognitionSettingsService` (`src/app/lib/recognition-settings.service.ts`) using signals + an `effect()` writing to `localStorage`.
 
 ## Local conventions to follow
-- Standalone components + explicit `imports: [...]` (see `src/app/components/**`).
-- Prefer `ChangeDetectionStrategy.OnPush` for components (all leaf components use it).
+- Components are standalone-by-default in Angular v21: do NOT add `standalone: true` to decorators.
+- Components list explicit `imports: [...]` locally (see `src/app/components/**`).
+- Prefer `ChangeDetectionStrategy.OnPush` (used across leaf components).
+- Dependency injection: prefer constructor injection (keep existing style).
 - State is typically `signal()`; templates call signals as functions (e.g. `editorOpen()`).
-- Templates use both legacy structural directives (`*ngIf`, `*ngFor`) and the new built-in control flow (`@if`). Match the style of the file you’re editing.
-- Tailwind utility classes are used heavily in templates; component SCSS is for “hard” layout details (e.g. editor overlay in `json-text-editor.component.scss`).
+- Templates: use `@if/@for` (and `track ...` in `@for`); do NOT introduce `*ngIf/*ngFor`.
+- Styling: Tailwind utilities in templates; avoid `ngClass/ngStyle`.
+	- Prefer `[class.foo]="cond"` / `[class]="expr"` bindings.
+	- Avoid class string interpolation unless necessary.
 
 ## Gotchas / safety
-- The editor overlay uses `[innerHTML]` with `DomSanitizer.bypassSecurityTrustHtml()` in `JsonTextEditorComponent`; keep `escapeHtml()` in `json-parse.ts` correct if you change highlighting.
-- `tailwind.config.js` safelists highlight classes (`bg-red-500/35`, `rounded-sm`) used by the generated HTML.
+- The editor overlay uses `[innerHTML]` with `DomSanitizer.bypassSecurityTrustHtml()` in `JsonTextEditorComponent`.
+	- If you change highlighting HTML, keep `escapeHtml()` correct in `src/app/lib/json-parse.ts`.
+	- If you change highlight classes, update `tailwind.config.js#safelist`.
 
 ## Where to implement changes
 - New recognition logic: edit `src/app/lib/string-tags.ts` and gate it via `RecognitionSettingsService.isEnabled()`.
