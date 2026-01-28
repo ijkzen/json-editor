@@ -1,5 +1,8 @@
 export type StringTag =
   | { kind: 'phone'; label: 'phone' }
+  | { kind: 'time'; label: 'time' }
+  | { kind: 'link'; label: 'link' }
+  | { kind: 'email'; label: 'email' }
   | { kind: 'color'; label: 'color'; cssColor: string; textColor: string };
 
 export function getStringTags(value: string): StringTag[] {
@@ -9,12 +12,112 @@ export function getStringTags(value: string): StringTag[] {
     tags.push({ kind: 'phone', label: 'phone' });
   }
 
+  if (parseTimeFromString(value)) {
+    tags.push({ kind: 'time', label: 'time' });
+  }
+
+  if (parseEmail(value)) {
+    tags.push({ kind: 'email', label: 'email' });
+  }
+
+  if (parseLink(value)) {
+    tags.push({ kind: 'link', label: 'link' });
+  }
+
   const color = parseCssColor(value);
   if (color) {
     tags.push({ kind: 'color', label: 'color', cssColor: color.cssColor, textColor: color.textColor });
   }
 
   return tags;
+}
+
+export function getNumberTags(value: number): StringTag[] {
+  const tags: StringTag[] = [];
+
+  if (looksLikePhoneNumber(value)) {
+    tags.push({ kind: 'phone', label: 'phone' });
+  }
+
+  if (parseTimeFromNumber(value)) {
+    tags.push({ kind: 'time', label: 'time' });
+  }
+
+  return tags;
+}
+
+export type ParsedTime =
+  | { kind: 'timestamp'; date: Date; display: string }
+  | { kind: 'iso'; date: Date; display: string };
+
+const ASIA_SHANGHAI_TZ = 'Asia/Shanghai';
+
+export function parseTimeFromNumber(value: number): ParsedTime | null {
+  if (!Number.isFinite(value)) return null;
+  if (!Number.isInteger(value)) return null;
+
+  // Reasonable range: 2000-01-01 to 2100-01-01
+  const SEC_MIN = 946684800;
+  const SEC_MAX = 4102444800;
+  const MS_MIN = SEC_MIN * 1000;
+  const MS_MAX = SEC_MAX * 1000;
+
+  let ms: number | null = null;
+  if (value >= SEC_MIN && value <= SEC_MAX) {
+    ms = value * 1000;
+  } else if (value >= MS_MIN && value <= MS_MAX) {
+    ms = value;
+  }
+  if (ms === null) return null;
+
+  const date = new Date(ms);
+  if (!Number.isFinite(date.getTime())) return null;
+  return { kind: 'timestamp', date, display: formatSlashDateTime(date, ASIA_SHANGHAI_TZ) };
+}
+
+export function parseTimeFromString(value: string): ParsedTime | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const numeric = parseNumericTimestamp(trimmed);
+  if (numeric !== null) {
+    const parsed = parseTimeFromNumber(numeric);
+    if (parsed) return parsed;
+  }
+
+  if (looksLikeIso8601(trimmed)) {
+    const t = Date.parse(trimmed);
+    if (Number.isFinite(t)) {
+      const date = new Date(t);
+      return { kind: 'iso', date, display: `东 8 区 ${formatDashDateTime(date, ASIA_SHANGHAI_TZ)}` };
+    }
+  }
+
+  return null;
+}
+
+export function parseLink(value: string): { href: string } | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const candidate = trimmed.startsWith('www.') ? `https://${trimmed}` : trimmed;
+  if (!/^https?:\/\//i.test(candidate)) return null;
+
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    return { href: url.toString() };
+  } catch {
+    return null;
+  }
+}
+
+export function parseEmail(value: string): { address: string } | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  // Pragmatic email regex (good enough for UI tagging).
+  if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(trimmed)) return null;
+  return { address: trimmed };
 }
 
 function looksLikePhone(value: string): boolean {
@@ -28,6 +131,106 @@ function looksLikePhone(value: string): boolean {
 
   const digitCount = digits.startsWith('+') ? digits.length - 1 : digits.length;
   return digitCount >= 7 && digitCount <= 15;
+}
+
+function looksLikePhoneNumber(value: number): boolean {
+  if (!Number.isFinite(value)) return false;
+  if (!Number.isInteger(value)) return false;
+  if (value < 0) return false;
+
+  const raw = String(value);
+  // Avoid scientific notation.
+  if (raw.includes('e') || raw.includes('E')) return false;
+  return looksLikePhone(raw);
+}
+
+function parseNumericTimestamp(value: string): number | null {
+  // Allow 10-13 digit integers.
+  if (!/^\d{10,13}$/.test(value)) return null;
+
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  if (!Number.isSafeInteger(n)) return null;
+
+  // If it's 10 digits, treat as seconds; if 13 digits, treat as ms.
+  if (value.length === 10) return n; // seconds
+  if (value.length === 13) return n; // ms
+
+  // 11-12 digits: decide by range.
+  return n;
+}
+
+function looksLikeIso8601(value: string): boolean {
+  // Require a clear ISO shape to reduce false positives.
+  // Examples: 2026-01-29T07:30:45.333Z, 2026-01-29T15:30:45+08:00
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:?\d{2})$/.test(value);
+}
+
+function formatSlashDateTime(date: Date, timeZone: string): string {
+  const p = getDateTimeParts(date, timeZone);
+  return `${p.year}/${p.month}/${p.day} ${p.hour}:${p.minute}:${p.second}.${p.millisecond}`;
+}
+
+function formatDashDateTime(date: Date, timeZone: string): string {
+  const p = getDateTimeParts(date, timeZone);
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second}.${p.millisecond}`;
+}
+
+function getDateTimeParts(
+  date: Date,
+  timeZone: string
+): { year: string; month: string; day: string; hour: string; minute: string; second: string; millisecond: string } {
+  const base = {
+    year: '',
+    month: '',
+    day: '',
+    hour: '',
+    minute: '',
+    second: '',
+    millisecond: String(date.getMilliseconds()).padStart(3, '0'),
+  };
+
+  try {
+    const dtf = new Intl.DateTimeFormat('zh-CN', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      fractionalSecondDigits: 3,
+    } as Intl.DateTimeFormatOptions);
+
+    for (const part of dtf.formatToParts(date)) {
+      if (part.type === 'year') base.year = part.value;
+      else if (part.type === 'month') base.month = part.value;
+      else if (part.type === 'day') base.day = part.value;
+      else if (part.type === 'hour') base.hour = part.value;
+      else if (part.type === 'minute') base.minute = part.value;
+      else if (part.type === 'second') base.second = part.value;
+      else if (part.type === 'fractionalSecond') base.millisecond = part.value.padStart(3, '0');
+    }
+
+    if (base.year && base.month && base.day && base.hour && base.minute && base.second) {
+      return base;
+    }
+  } catch {
+    // Fall through to a simple (best-effort) fallback.
+  }
+
+  // Fallback (timezone may differ); still keeps milliseconds correct.
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  return {
+    year: String(date.getFullYear()),
+    month: pad2(date.getMonth() + 1),
+    day: pad2(date.getDate()),
+    hour: pad2(date.getHours()),
+    minute: pad2(date.getMinutes()),
+    second: pad2(date.getSeconds()),
+    millisecond: String(date.getMilliseconds()).padStart(3, '0'),
+  };
 }
 
 type ParsedColor = { cssColor: string; textColor: string };

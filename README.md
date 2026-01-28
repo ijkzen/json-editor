@@ -7,7 +7,10 @@ Angular + Material + Tailwind 的 JSON 字符串编辑/树状展示小站。
 - 左侧：JSON 纯文本编辑，可一键隐藏；JSON 语法错误位置红色背景高亮。
 - 右侧：可展开的树状结构，默认只展开第一层。
 - 右侧类型高亮：string / number / boolean / null / array / object。
-- 字符串标签：尝试识别 `phone` / `color`；`color` 标签背景使用该颜色。
+- 标签与增强展示：
+	- 数字：尝试识别 `phone`、秒/毫秒时间戳（`time`），并在数字后方展示格式化时间。
+	- 字符串：尝试识别时间戳/ISO 8601 时间（`time`）、网址（`link`）、邮箱（`email`）、颜色（`color`）。
+	- `link`/`email` 会显示下划线，点击新标签页打开（邮箱为 `mailto:`）。
 
 ## 技术栈
 

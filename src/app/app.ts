@@ -12,9 +12,18 @@ const SAMPLE_JSON = `{
   "user": {
     "name": "Alice",
     "phone": "+86 138-0013-8000",
+    "mobileNumber": 13800138000,
+    "email": "support@example.com",
+    "website": "https://angular.dev",
     "favoriteColor": "#7c3aed",
     "age": 28,
     "vip": true,
+    "createdAtMs": 1759251661333,
+    "createdAtSec": 1759251661,
+    "createdAtMsStr": "1759251661333",
+    "createdAtSecStr": "1759251661",
+    "isoTimeUtc": "2026-01-29T07:30:45.333Z",
+    "isoTimeOffset": "2026-01-29T15:30:45.333+08:00",
     "tags": ["dev", "music", "#22c55e"],
     "profile": null
   },

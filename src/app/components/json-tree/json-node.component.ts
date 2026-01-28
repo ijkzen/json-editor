@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angu
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { JsonNodeType, JsonValue, getJsonNodeType, isContainerType } from '../../lib/json-types';
-import { getStringTags } from '../../lib/string-tags';
+import { getNumberTags, getStringTags, parseEmail, parseLink, parseTimeFromNumber, parseTimeFromString } from '../../lib/string-tags';
 import { JsonStringDialogComponent } from './json-string-dialog.component';
 
 @Component({
@@ -49,6 +49,35 @@ export class JsonNodeComponent implements OnInit {
   protected stringTags() {
     if (this.nodeType() !== 'string') return [];
     return getStringTags(this.value as string);
+  }
+
+  protected numberTags() {
+    if (this.nodeType() !== 'number') return [];
+    return getNumberTags(this.value as number);
+  }
+
+  protected timeDisplay(): string | null {
+    const t = this.nodeType();
+    if (t === 'number') {
+      const parsed = parseTimeFromNumber(this.value as number);
+      return parsed?.display ?? null;
+    }
+    if (t === 'string') {
+      const parsed = parseTimeFromString(this.value as string);
+      return parsed?.display ?? null;
+    }
+    return null;
+  }
+
+  protected linkHref(): string | null {
+    if (this.nodeType() !== 'string') return null;
+    return parseLink(this.value as string)?.href ?? null;
+  }
+
+  protected emailHref(): string | null {
+    if (this.nodeType() !== 'string') return null;
+    const email = parseEmail(this.value as string)?.address;
+    return email ? `mailto:${email}` : null;
   }
 
   constructor(private readonly dialog: MatDialog) {}

@@ -25,7 +25,7 @@
                         <span *ngFor="let tag of stringTags()"
                             class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border"
                             [ngClass]="{
-                  'bg-white text-slate-700 border-slate-200': tag.kind === 'phone',
+                  'bg-white text-slate-700 border-slate-200': tag.kind === 'phone' || tag.kind === 'time' || tag.kind === 'link' || tag.kind === 'email',
                   'border-slate-200': tag.kind === 'color'
                 }" [style.backgroundColor]="tag.kind === 'color' ? tag.cssColor : null"
                             [style.color]="tag.kind === 'color' ? tag.textColor : null">
@@ -33,14 +33,46 @@
                         </span>
                     </span>
 
-                    <span class="block min-w-0 max-w-full whitespace-nowrap" [class.cursor-pointer]="isLongString()"
-                        [class.underline]="isLongString()" [class.decoration-dotted]="isLongString()"
-                        (click)="openFullString()" [title]="isLongString() ? '点击查看完整内容' : null">
+                    <a *ngIf="linkHref()"
+                        class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
+                        [href]="linkHref()" target="_blank" rel="noopener noreferrer" title="点击打开链接">
                         {{ displayString() }}
+                    </a>
+
+                    <a *ngIf="!linkHref() && emailHref()"
+                        class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
+                        [href]="emailHref()" target="_blank" rel="noopener noreferrer" title="点击发送邮件">
+                        {{ displayString() }}
+                    </a>
+
+                    <span *ngIf="!linkHref() && !emailHref()" class="block min-w-0 max-w-full whitespace-nowrap"
+                        [class.cursor-pointer]="isLongString()" [class.underline]="isLongString()"
+                        [class.decoration-dotted]="isLongString()" (click)="openFullString()"
+                        [title]="isLongString() ? '点击查看完整内容' : null">
+                        {{ displayString() }}
+                    </span>
+
+                    <span *ngIf="timeDisplay()" class="text-[11px] text-slate-500 font-mono shrink-0">
+                        {{ timeDisplay() }}
                     </span>
                 </span>
 
-                <span *ngIf="!isContainer() && nodeType() !== 'string'" class="font-mono" [ngClass]="typeClass()">
+                <span *ngIf="nodeType() === 'number'" class="font-mono inline-flex items-center gap-1"
+                    [ngClass]="typeClass()">
+                    <span *ngIf="numberTags().length" class="inline-flex items-center gap-0.5 shrink-0">
+                        <span *ngFor="let tag of numberTags()"
+                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border bg-white text-slate-700 border-slate-200">
+                            {{ tag.label }}
+                        </span>
+                    </span>
+                    <span>{{ formatPrimitive() }}</span>
+                    <span *ngIf="timeDisplay()" class="text-[11px] text-slate-500 font-mono shrink-0">
+                        {{ timeDisplay() }}
+                    </span>
+                </span>
+
+                <span *ngIf="!isContainer() && nodeType() !== 'string' && nodeType() !== 'number'" class="font-mono"
+                    [ngClass]="typeClass()">
                     {{ formatPrimitive() }}
                 </span>
             </div>
