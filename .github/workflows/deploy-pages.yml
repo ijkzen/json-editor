@@ -34,7 +34,7 @@ jobs:
         run: pnpm i --frozen-lockfile
 
       - name: Build (base href = /json-editor/)
-        run: pnpm build -- --base-href /json-editor/
+        run: pnpm ng build --base-href /json-editor/
 
       # Angular 21 默认产物通常在 dist/<project>/browser
       - name: Upload artifact
