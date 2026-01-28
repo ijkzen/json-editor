@@ -8,79 +8,92 @@
 
         <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
-                <span *ngIf="nodeKey !== null" class="font-mono text-slate-800">
-                    <span *ngIf="typeof nodeKey === 'string'">{{ nodeKey }}</span>
-                    <span *ngIf="typeof nodeKey !== 'string'">[{{ nodeKey }}]</span>
+                @if (nodeKey !== null) {
+                <span class="font-mono text-slate-800">
+                    @if (typeof nodeKey === 'string') {
+                    <span>{{ nodeKey }}</span>
+                    } @else {
+                    <span>[{{ nodeKey }}]</span>
+                    }
                     <span class="text-slate-400">:</span>
                 </span>
+                }
 
-                <span *ngIf="isContainer()" class="font-mono text-xs px-2 py-0.5 rounded bg-slate-100"
-                    [ngClass]="typeClass()">
+                @if (isContainer()) {
+                <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 {{ typeClass() }}">
                     {{ containerSummary() }}
                 </span>
+                }
 
-                <span *ngIf="nodeType() === 'string'" class="font-mono inline-flex items-center gap-1 max-w-full"
-                    [ngClass]="typeClass()">
-                    <span *ngIf="stringTags().length" class="inline-flex items-center gap-0.5 shrink-0">
-                        <span *ngFor="let tag of stringTags()"
-                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border"
-                            [ngClass]="{
-                  'bg-white text-slate-700 border-slate-200': tag.kind === 'phone' || tag.kind === 'time' || tag.kind === 'link' || tag.kind === 'email',
-                  'border-slate-200': tag.kind === 'color'
-                }" [style.backgroundColor]="tag.kind === 'color' ? colorCss(tag) : null"
+                @if (nodeType() === 'string') {
+                <span class="font-mono inline-flex items-center gap-1 max-w-full {{ typeClass() }}">
+                    @if (stringTags().length) {
+                    <span class="inline-flex items-center gap-0.5 shrink-0">
+                        @for (tag of stringTags(); track tag.kind) {
+                        <span
+                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border border-slate-200"
+                            [class.bg-white]="tag.kind !== 'color'" [class.text-slate-700]="tag.kind !== 'color'"
+                            [style.backgroundColor]="tag.kind === 'color' ? colorCss(tag) : null"
                             [style.color]="tag.kind === 'color' ? tag.textColor : null">
                             {{ tag.label }}
                         </span>
+                        }
                     </span>
+                    }
 
-                    <a *ngIf="linkHref()"
-                        class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
+                    @if (linkHref()) {
+                    <a class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
                         [href]="linkHref()" target="_blank" rel="noopener noreferrer" title="点击打开链接">
                         {{ displayString() }}
                     </a>
-
-                    <a *ngIf="!linkHref() && emailHref()"
-                        class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
+                    } @else if (emailHref()) {
+                    <a class="block min-w-0 max-w-full whitespace-nowrap cursor-pointer underline decoration-dotted"
                         [href]="emailHref()" target="_blank" rel="noopener noreferrer" title="点击发送邮件">
                         {{ displayString() }}
                     </a>
-
-                    <span *ngIf="!linkHref() && !emailHref()" class="block min-w-0 max-w-full whitespace-nowrap"
-                        [class.cursor-pointer]="isLongString()" [class.underline]="isLongString()"
-                        [class.decoration-dotted]="isLongString()" (click)="openFullString()"
-                        [title]="isLongString() ? '点击查看完整内容' : null">
+                    } @else {
+                    <span class="block min-w-0 max-w-full whitespace-nowrap" [class.cursor-pointer]="isLongString()"
+                        [class.underline]="isLongString()" [class.decoration-dotted]="isLongString()"
+                        (click)="openFullString()" [title]="isLongString() ? '点击查看完整内容' : null">
                         {{ displayString() }}
                     </span>
+                    }
 
-                    <span *ngIf="timeDisplay()" class="text-[11px] text-slate-500 font-mono shrink-0">
-                        {{ timeDisplay() }}
-                    </span>
+                    @if (timeDisplay()) {
+                    <span class="text-[11px] text-slate-500 font-mono shrink-0">{{ timeDisplay() }}</span>
+                    }
                 </span>
-
-                <span *ngIf="nodeType() === 'number'" class="font-mono inline-flex items-center gap-1"
-                    [ngClass]="typeClass()">
-                    <span *ngIf="numberTags().length" class="inline-flex items-center gap-0.5 shrink-0">
-                        <span *ngFor="let tag of numberTags()"
+                } @else if (nodeType() === 'number') {
+                <span class="font-mono inline-flex items-center gap-1 {{ typeClass() }}">
+                    @if (numberTags().length) {
+                    <span class="inline-flex items-center gap-0.5 shrink-0">
+                        @for (tag of numberTags(); track tag.kind) {
+                        <span
                             class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border bg-white text-slate-700 border-slate-200">
                             {{ tag.label }}
                         </span>
+                        }
                     </span>
+                    }
                     <span>{{ formatPrimitive() }}</span>
-                    <span *ngIf="timeDisplay()" class="text-[11px] text-slate-500 font-mono shrink-0">
-                        {{ timeDisplay() }}
-                    </span>
+                    @if (timeDisplay()) {
+                    <span class="text-[11px] text-slate-500 font-mono shrink-0">{{ timeDisplay() }}</span>
+                    }
                 </span>
-
-                <span *ngIf="!isContainer() && nodeType() !== 'string' && nodeType() !== 'number'" class="font-mono"
-                    [ngClass]="typeClass()">
+                } @else if (!isContainer()) {
+                <span class="font-mono {{ typeClass() }}">
                     {{ formatPrimitive() }}
                 </span>
+                }
             </div>
         </div>
     </div>
 
-    <div *ngIf="isContainer() && expanded()" class="border-l border-slate-200 ml-3">
-        <app-json-node *ngFor="let child of children(); trackBy: trackByChildKey" [nodeKey]="child.key"
-            [value]="child.value" [depth]="depth + 1" />
+    @if (isContainer() && expanded()) {
+    <div class="border-l border-slate-200 ml-3">
+        @for (child of children(); track child.key) {
+        <app-json-node [nodeKey]="child.key" [value]="child.value" [depth]="depth + 1" />
+        }
     </div>
+    }
 </div>

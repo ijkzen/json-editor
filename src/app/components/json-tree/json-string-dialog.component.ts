@@ -10,7 +10,6 @@ export type JsonStringDialogData = {
 
 @Component({
   selector: 'app-json-string-dialog',
-  standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   template: `
     <h2 mat-dialog-title>{{ data.title || '内容' }}</h2>

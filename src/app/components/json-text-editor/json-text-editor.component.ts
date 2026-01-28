@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -23,8 +22,7 @@ export type JsonEditorError = {
 
 @Component({
   selector: 'app-json-text-editor',
-  standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './json-text-editor.component.html',
   styleUrls: ['./json-text-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

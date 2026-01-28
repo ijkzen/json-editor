@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,8 +8,7 @@ import { JsonStringDialogComponent } from './json-string-dialog.component';
 
 @Component({
   selector: 'app-json-node',
-  standalone: true,
-  imports: [CommonModule, MatIconModule, MatDialogModule],
+  imports: [MatIconModule, MatDialogModule],
   templateUrl: './json-node.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -142,10 +140,6 @@ export class JsonNodeComponent implements OnInit {
   protected toggle(): void {
     if (!this.isContainer()) return;
     this.expanded.set(!this.expanded());
-  }
-
-  protected trackByChildKey(_index: number, child: { key: string | number; value: JsonValue }): string | number {
-    return child.key;
   }
 
   protected typeClass(): string {

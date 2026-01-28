@@ -5,7 +5,6 @@ import { JsonNodeComponent } from './json-node.component';
 
 @Component({
   selector: 'app-json-tree',
-  standalone: true,
   imports: [CommonModule, JsonNodeComponent],
   templateUrl: './json-tree.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

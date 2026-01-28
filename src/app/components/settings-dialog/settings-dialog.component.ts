@@ -9,7 +9,6 @@ import { RecognitionSettingsService } from '../../lib/recognition-settings.servi
 
 @Component({
   selector: 'app-settings-dialog',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,
