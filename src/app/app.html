@@ -16,33 +16,37 @@
 
 <mat-sidenav-container class="h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 relative">
   <mat-sidenav mode="side" [opened]="editorOpen()" [style.width.%]="50" [style.maxWidth.%]="50"
-    class="min-w-0 p-4 bg-slate-50 dark:bg-slate-950">
-    <app-json-text-editor #editor [text]="jsonText()" [error]="parseError()" (textChange)="onTextChange($event)"
-      (format)="formatJson()" />
+    class="min-w-0 bg-slate-50 dark:bg-slate-950">
+    <div class="p-4 h-full">
+      <app-json-text-editor #editor [text]="jsonText()" [error]="parseError()" (textChange)="onTextChange($event)"
+        (format)="formatJson()" />
+    </div>
   </mat-sidenav>
 
-  <mat-sidenav-content class="p-4 h-full">
-    <div class="h-full flex flex-col gap-3">
-      <div class="flex items-center gap-2">
-        <div class="text-sm text-slate-600 dark:text-slate-300">{{ t('app.tree') }}</div>
-        @if (parseError()) {
-        <div class="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300"
-          [title]="parseError()?.message || ''">
-          {{ t('app.jsonInvalidHint') }}
+  <mat-sidenav-content class="h-full">
+    <div class="p-4 h-full">
+      <div class="h-full flex flex-col gap-3">
+        <div class="flex items-center gap-2 min-h-[36px]">
+          <div class="text-sm text-slate-600 dark:text-slate-300">{{ t('app.tree') }}</div>
+          @if (parseError()) {
+          <div class="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+            [title]="parseError()?.message || ''">
+            {{ t('app.jsonInvalidHint') }}
+          </div>
+          }
         </div>
-        }
-      </div>
 
-      <div class="flex-1 min-h-0">
-        <app-json-tree class="h-full block" [value]="lastValidValue()" (navigateToPath)="onNavigateToPath($event)" />
+        <div class="flex-1 min-h-0">
+          <app-json-tree class="h-full block" [value]="lastValidValue()" (navigateToPath)="onNavigateToPath($event)" />
+        </div>
       </div>
     </div>
-
-    <button mat-mini-fab type="button" (click)="toggleEditor()" [attr.aria-label]="t('app.toggleEditor')"
-      [style.position]="'fixed'" [style.zIndex]="2000" [style.top]="'calc(64px + (100vh - 64px)/2)'"
-      [style.left]="editorOpen() ? '50vw' : '12px'"
-      [style.transform]="editorOpen() ? 'translate(8px, -50%)' : 'translate(0, -50%)'">
-      <mat-icon>{{ editorOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
-    </button>
   </mat-sidenav-content>
 </mat-sidenav-container>
+
+<button mat-icon-button type="button" (click)="toggleEditor()" [attr.aria-label]="t('app.toggleEditor')"
+  [style.position]="'fixed'" [style.zIndex]="2000" [style.top]="'calc(64px + (100vh - 64px)/2)'"
+  [style.left]="editorOpen() ? 'calc(50vw)' : '12px'"
+  [style.transform]="editorOpen() ? 'translate(-50%, -50%)' : 'translate(0, -50%)'">
+  <mat-icon>{{ editorOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+</button>
