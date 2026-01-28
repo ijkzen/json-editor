@@ -7,16 +7,21 @@ A lightweight JSON text editor + tree viewer built with Angular 21 (standalone),
 ## Features
 
 - Text editor with an overlay highlighter for JSON parse errors (highlights the error character position when available).
+- One-click JSON formatting (only when JSON is valid).
+- When JSON is invalid, the tree stays stable and shows the last valid parsed value.
 - Collapsible editor panel.
+- Built-in sample JSON (reset with one click).
 - Recursive tree view with expand/collapse (expands only the root level by default).
 - Type coloring for `string | number | boolean | null | array | object`.
+- Long strings are truncated in-place; click to view full content in a dialog.
 - Smart tags for values:
 	- `time`: detects Unix timestamps (seconds/ms) and ISO 8601 strings; optionally shows a formatted time.
 	- `link`: detects `http(s)://...` (and `www.`) and opens in a new tab.
 	- `email`: detects emails and opens via `mailto:`.
 	- `phone`: detects phone-like strings/numbers.
-	- `color`: detects common CSS color formats (including ambiguous 8-digit hex, configurable as `#RRGGBBAA` vs `#AARRGGBB`).
-- Settings dialog; toggles persist to `localStorage`.
+	- `color`: detects common CSS color formats: `#RGB/#RGBA/#RRGGBB/#RRGGBBAA`, `rgb()/rgba()`, `hsl()/hsla()`, and `0xAARRGGBB`.
+	  - Note: `#` 8-digit hex can be ambiguous; the tree can interpret it as `#RRGGBBAA` (RGBA) or `#AARRGGBB` (ARGB) based on settings.
+- Settings dialog (dark mode + tag toggles); preferences persist to `localStorage`.
 
 ## Tech Stack
 
@@ -53,3 +58,4 @@ pnpm watch   # dev build watch mode
 - Tree rendering: `src/app/components/json-tree/`
 - Smart tags: `src/app/lib/string-tags.ts`
 - Tag toggles persistence: `src/app/lib/recognition-settings.service.ts`
+- Dark mode persistence: `src/app/lib/theme-settings.service.ts`
