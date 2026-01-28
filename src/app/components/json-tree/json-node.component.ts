@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { I18nService } from '../../lib/i18n.service';
 import { JsonNodeType, JsonValue, getJsonNodeType, isContainerType } from '../../lib/json-types';
 import { RecognitionSettingsService } from '../../lib/recognition-settings.service';
@@ -20,7 +21,7 @@ import { JsonStringDialogComponent } from './json-string-dialog.component';
 
 @Component({
   selector: 'app-json-node',
-  imports: [MatIconModule, MatDialogModule],
+  imports: [MatIconModule, MatDialogModule, MatSnackBarModule],
   templateUrl: './json-node.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -134,6 +135,7 @@ export class JsonNodeComponent implements OnInit {
   constructor(
     private readonly dialog: MatDialog,
     private readonly settings: RecognitionSettingsService,
+    private readonly snackBar: MatSnackBar,
     private readonly i18n: I18nService,
   ) {
     this.t = i18n.t;
@@ -264,6 +266,33 @@ export class JsonNodeComponent implements OnInit {
       maxWidth: 'min(900px, 95vw)',
       width: 'min(900px, 95vw)',
     });
+  }
+
+  protected async copyNodeJson(event?: MouseEvent): Promise<void> {
+    event?.stopPropagation();
+    event?.preventDefault();
+
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error('Clipboard API unavailable');
+      }
+
+      const payload: JsonValue | Record<string, JsonValue> =
+        this.nodeKey === null ? this.value : { [String(this.nodeKey)]: this.value };
+      const json = JSON.stringify(payload, null, 2);
+      await navigator.clipboard.writeText(json);
+      this.snackBar.open(this.t('snackbar.copied'), this.t('dialog.close'), {
+        duration: 2000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+      });
+    } catch {
+      this.snackBar.open(this.t('snackbar.copyFailed'), this.t('dialog.close'), {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+      });
+    }
   }
 
   private parseHex8Rrggbbaa(hex: string): { r: number; g: number; b: number; a: number } {

@@ -60,6 +60,7 @@ const EN = {
   'node.openLink': 'Open link',
   'node.sendEmail': 'Send email',
   'node.viewFullContent': 'View full content',
+  'node.copyJson': 'Copy JSON',
 
   // Dialogs
   'dialog.content': 'Content',
@@ -131,6 +132,7 @@ const ZH: Record<TranslationKey, string> = {
   'node.openLink': '点击打开链接',
   'node.sendEmail': '点击发送邮件',
   'node.viewFullContent': '点击查看完整内容',
+  'node.copyJson': '复制 JSON',
 
   // Dialogs
   'dialog.content': '内容',

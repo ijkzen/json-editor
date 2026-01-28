@@ -10,12 +10,22 @@
         <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
                 @if (nodeKey !== null) {
-                <span class="font-mono text-slate-800 dark:text-slate-100">
+                <span
+                    class="font-mono text-slate-800 dark:text-slate-100 inline-flex items-center gap-1 group leading-5">
                     @if (typeof nodeKey === 'string') {
                     <span>{{ nodeKey }}</span>
                     } @else {
                     <span>[{{ nodeKey }}]</span>
                     }
+
+                    <button type="button"
+                        class="h-5 w-5 inline-flex items-center justify-center self-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                        (click)="copyNodeJson($event)" [attr.aria-label]="t('node.copyJson')"
+                        [title]="t('node.copyJson')">
+                        <mat-icon
+                            class="text-[16px] leading-none text-slate-500 dark:text-slate-300">content_copy</mat-icon>
+                    </button>
+
                     <span class="text-slate-400 dark:text-slate-500">:</span>
                 </span>
                 }
