@@ -64,6 +64,26 @@ export class JsonTextEditorComponent implements AfterViewInit, OnChanges {
     queueMicrotask(() => this.syncScroll());
   }
 
+  public scrollToPosition(position: number): void {
+    const textarea = this.textareaRef.nativeElement;
+    const clamped = Math.max(0, Math.min(position, this.text.length));
+
+    const before = this.text.slice(0, clamped);
+    const line = before.split('\n').length - 1;
+
+    const lineHeightRaw = Number.parseFloat(getComputedStyle(textarea).lineHeight);
+    const lineHeight = Number.isFinite(lineHeightRaw) ? lineHeightRaw : 20;
+
+    textarea.focus();
+    textarea.setSelectionRange(clamped, clamped);
+
+    // Best-effort: scroll so the target line is visible (roughly 1/3 from top).
+    const targetTop = Math.max(0, line * lineHeight - textarea.clientHeight * 0.3);
+    textarea.scrollTop = targetTop;
+
+    this.syncScroll();
+  }
+
   protected onInput(value: string): void {
     this.textChange.emit(value);
   }

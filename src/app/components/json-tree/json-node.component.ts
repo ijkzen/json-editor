@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { I18nService } from '../../lib/i18n.service';
@@ -28,6 +28,9 @@ export class JsonNodeComponent implements OnInit {
   @Input() nodeKey: string | number | null = null;
   @Input({ required: true }) value!: JsonValue;
   @Input() depth = 0;
+  @Input() path: Array<string | number> = [];
+
+  @Output() navigateToPath = new EventEmitter<Array<string | number>>();
 
   protected readonly expanded = signal(false);
 
@@ -157,6 +160,12 @@ export class JsonNodeComponent implements OnInit {
   protected toggle(): void {
     if (!this.isContainer()) return;
     this.expanded.set(!this.expanded());
+  }
+
+  protected toggleAndNavigate(): void {
+    if (!this.isContainer()) return;
+    this.expanded.set(!this.expanded());
+    this.navigateToPath.emit(this.path);
   }
 
   protected typeClass(): string {

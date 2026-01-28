@@ -2,7 +2,7 @@
     <div class="flex items-start gap-2 py-1">
         <button type="button"
             class="mt-0.5 h-6 w-6 flex items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800"
-            (click)="toggle()" [class.opacity-0]="!isContainer()"
+            (click)="toggleAndNavigate()" [class.opacity-0]="!isContainer()"
             [attr.aria-label]="isContainer() ? (expanded() ? t('node.collapse') : t('node.expand')) : null">
             <mat-icon class="text-slate-600 dark:text-slate-300" [class.rotate-90]="expanded()">chevron_right</mat-icon>
         </button>
@@ -122,7 +122,8 @@
     @if (isContainer() && expanded()) {
     <div class="border-l border-slate-200 dark:border-slate-700 ml-3">
         @for (child of children(); track child.key) {
-        <app-json-node [nodeKey]="child.key" [value]="child.value" [depth]="depth + 1" />
+        <app-json-node [nodeKey]="child.key" [value]="child.value" [depth]="depth + 1" [path]="[...path, child.key]"
+            (navigateToPath)="navigateToPath.emit($event)" />
         }
     </div>
     }

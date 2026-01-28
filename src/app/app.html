@@ -17,7 +17,7 @@
 <mat-sidenav-container class="h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950 relative">
   <mat-sidenav mode="side" [opened]="editorOpen()" [style.width.%]="50" [style.maxWidth.%]="50"
     class="min-w-0 p-4 bg-slate-50 dark:bg-slate-950">
-    <app-json-text-editor [text]="jsonText()" [error]="parseError()" (textChange)="onTextChange($event)"
+    <app-json-text-editor #editor [text]="jsonText()" [error]="parseError()" (textChange)="onTextChange($event)"
       (format)="formatJson()" />
   </mat-sidenav>
 
@@ -34,7 +34,7 @@
       </div>
 
       <div class="flex-1 min-h-0">
-        <app-json-tree class="h-full block" [value]="lastValidValue()" />
+        <app-json-tree class="h-full block" [value]="lastValidValue()" (navigateToPath)="onNavigateToPath($event)" />
       </div>
     </div>
 

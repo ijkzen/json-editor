@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { JsonValue } from '../../lib/json-types';
 import { JsonNodeComponent } from './json-node.component';
 
@@ -11,4 +11,6 @@ import { JsonNodeComponent } from './json-node.component';
 })
 export class JsonTreeComponent {
   @Input({ required: true }) value!: JsonValue;
+
+  @Output() navigateToPath = new EventEmitter<Array<string | number>>();
 }

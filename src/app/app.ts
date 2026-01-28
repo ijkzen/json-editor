@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, ViewChild, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { JsonTextEditorComponent } from './components/json-text-editor/json-text
 import { JsonTreeComponent } from './components/json-tree/json-tree.component';
 import { SettingsDialogComponent } from './components/settings-dialog/settings-dialog.component';
 import { I18nService } from './lib/i18n.service';
+import { findJsonPathPosition } from './lib/json-locate';
 import { JsonParseError, tryParseJson } from './lib/json-parse';
 import { JsonValue } from './lib/json-types';
 import { ThemeSettingsService } from './lib/theme-settings.service';
@@ -59,6 +60,8 @@ const SAMPLE_JSON = `{
   styleUrl: './app.scss',
 })
 export class App {
+  @ViewChild(JsonTextEditorComponent) private readonly editor?: JsonTextEditorComponent;
+
   protected readonly title = signal('json-editor');
   protected readonly editorOpen = signal(true);
 
@@ -115,6 +118,15 @@ export class App {
     } catch {
       // Ignore formatting errors.
     }
+  }
+
+  protected onNavigateToPath(path: Array<string | number>): void {
+    const text = this.jsonText();
+    const position = findJsonPathPosition(text, path);
+    if (position === null) return;
+
+    // Ensure layout is stable before scrolling.
+    queueMicrotask(() => this.editor?.scrollToPosition(position));
   }
 
   private reparse(text: string, options?: { persist?: boolean }): void {
