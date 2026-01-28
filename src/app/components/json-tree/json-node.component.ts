@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input, OnInit, signal } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { JsonNodeType, JsonValue, getJsonNodeType, isContainerType } from '../../lib/json-types';
 import { getStringTags } from '../../lib/string-tags';
 import { JsonStringDialogComponent } from './json-string-dialog.component';

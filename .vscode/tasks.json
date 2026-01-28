@@ -6,7 +6,9 @@
       "type": "shell",
       "label": "pnpm: start",
       "command": "pnpm",
-      "args": ["start"],
+      "args": [
+        "start"
+      ],
       "isBackground": true,
       "problemMatcher": {
         "owner": "typescript",
@@ -26,7 +28,9 @@
       "type": "shell",
       "label": "pnpm: test",
       "command": "pnpm",
-      "args": ["test"],
+      "args": [
+        "test"
+      ],
       "isBackground": true,
       "problemMatcher": {
         "owner": "typescript",

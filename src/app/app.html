@@ -28,17 +28,9 @@
       </div>
     </div>
 
-    <button
-      mat-mini-fab
-      type="button"
-      (click)="toggleEditor()"
-      aria-label="Toggle editor"
-      [style.position]="'fixed'"
-      [style.zIndex]="2000"
-      [style.top]="'calc(64px + (100vh - 64px)/2)'"
-      [style.left]="editorOpen() ? '50vw' : '12px'"
-      [style.transform]="editorOpen() ? 'translate(8px, -50%)' : 'translate(0, -50%)'"
-    >
+    <button mat-mini-fab type="button" (click)="toggleEditor()" aria-label="Toggle editor" [style.position]="'fixed'"
+      [style.zIndex]="2000" [style.top]="'calc(64px + (100vh - 64px)/2)'" [style.left]="editorOpen() ? '50vw' : '12px'"
+      [style.transform]="editorOpen() ? 'translate(8px, -50%)' : 'translate(0, -50%)'">
       <mat-icon>{{ editorOpen() ? 'chevron_left' : 'chevron_right' }}</mat-icon>
     </button>
   </mat-sidenav-content>

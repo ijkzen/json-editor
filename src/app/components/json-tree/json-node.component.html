@@ -19,7 +19,8 @@
                     {{ containerSummary() }}
                 </span>
 
-                <span *ngIf="nodeType() === 'string'" class="font-mono inline-flex items-center gap-1 max-w-full" [ngClass]="typeClass()">
+                <span *ngIf="nodeType() === 'string'" class="font-mono inline-flex items-center gap-1 max-w-full"
+                    [ngClass]="typeClass()">
                     <span *ngIf="stringTags().length" class="inline-flex items-center gap-0.5 shrink-0">
                         <span *ngFor="let tag of stringTags()"
                             class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border"
@@ -32,14 +33,9 @@
                         </span>
                     </span>
 
-                    <span
-                        class="block min-w-0 max-w-full whitespace-nowrap"
-                        [class.cursor-pointer]="isLongString()"
-                        [class.underline]="isLongString()"
-                        [class.decoration-dotted]="isLongString()"
-                        (click)="openFullString()"
-                        [title]="isLongString() ? '点击查看完整内容' : null"
-                    >
+                    <span class="block min-w-0 max-w-full whitespace-nowrap" [class.cursor-pointer]="isLongString()"
+                        [class.underline]="isLongString()" [class.decoration-dotted]="isLongString()"
+                        (click)="openFullString()" [title]="isLongString() ? '点击查看完整内容' : null">
                         {{ displayString() }}
                     </span>
                 </span>
@@ -52,7 +48,7 @@
     </div>
 
     <div *ngIf="isContainer() && expanded()" class="border-l border-slate-200 ml-3">
-        <app-json-node *ngFor="let child of children(); trackBy: trackByChildKey" [nodeKey]="child.key" [value]="child.value"
-            [depth]="depth + 1" />
+        <app-json-node *ngFor="let child of children(); trackBy: trackByChildKey" [nodeKey]="child.key"
+            [value]="child.value" [depth]="depth + 1" />
     </div>
 </div>
