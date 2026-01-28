@@ -20,6 +20,7 @@
   - `link`：识别 `http(s)://...`（以及 `www.` 开头）并新标签页打开。
   - `email`：识别邮箱并通过 `mailto:` 打开。
   - `phone`：识别手机号/电话样式的字符串或数字。
+  - `IMG`：识别 base64 图片（`data:image/...;base64,...` 或常见图片头部特征的纯 base64）；支持 `show`（弹窗预览）与 `text`（弹窗查看 base64 文本）。
   - `color`：识别常见 CSS 颜色格式：`#RGB/#RGBA/#RRGGBB/#RRGGBBAA`、`rgb()/rgba()`、`hsl()/hsla()`、以及 `0xAARRGGBB`。
     - 说明：以 `#` 开头的 8 位 hex 可能存在歧义；可在设置中选择按 RGBA（`#RRGGBBAA`）或 ARGB（`#AARRGGBB`）解释。
 - 设置弹窗（暗色模式 + 标签开关）；偏好会持久化到 `localStorage`。

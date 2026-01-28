@@ -3,7 +3,18 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { JsonNodeType, JsonValue, getJsonNodeType, isContainerType } from '../../lib/json-types';
 import { RecognitionSettingsService } from '../../lib/recognition-settings.service';
-import { StringTag, getNumberTags, getStringTags, parseEmail, parseLink, parseTimeFromNumber, parseTimeFromString } from '../../lib/string-tags';
+import {
+  ParsedBase64Image,
+  StringTag,
+  getNumberTags,
+  getStringTags,
+  parseBase64Image,
+  parseEmail,
+  parseLink,
+  parseTimeFromNumber,
+  parseTimeFromString,
+} from '../../lib/string-tags';
+import { JsonImageDialogComponent } from './json-image-dialog.component';
 import { JsonStringDialogComponent } from './json-string-dialog.component';
 
 @Component({
@@ -60,7 +71,7 @@ export class JsonNodeComponent implements OnInit {
   private pickPrimaryTags(tags: StringTag[]): StringTag[] {
     if (!tags.length) return [];
 
-    const priority: Array<StringTag['kind']> = ['time', 'color', 'phone', 'link', 'email'];
+    const priority: Array<StringTag['kind']> = ['image', 'time', 'color', 'phone', 'link', 'email'];
     for (const kind of priority) {
       const hit = tags.find((t) => t.kind === kind);
       if (hit) return [hit];
@@ -178,6 +189,52 @@ export class JsonNodeComponent implements OnInit {
     if (this.nodeType() !== 'string') return this.formatPrimitive();
     const raw = JSON.stringify(this.value as string);
     return middleEllipsis(raw, 100);
+  }
+
+  private imageCache: { value: string; info: ParsedBase64Image | null } | null = null;
+
+  protected imageInfo(): ParsedBase64Image | null {
+    if (!this.settings.image()) return null;
+    if (this.nodeType() !== 'string') return null;
+
+    const raw = this.value as string;
+    if (this.imageCache?.value === raw) return this.imageCache.info;
+
+    const info = parseBase64Image(raw);
+    this.imageCache = { value: raw, info };
+    return info;
+  }
+
+  protected displayImageString(): string {
+    if (this.nodeType() !== 'string') return this.formatPrimitive();
+    const raw = (this.value as string).trim();
+    return middleEllipsis(raw, 70);
+  }
+
+  protected openImagePreview(info: ParsedBase64Image): void {
+    if (!info) return;
+
+    this.dialog.open(JsonImageDialogComponent, {
+      data: {
+        title: typeof this.nodeKey === 'string' ? this.nodeKey : '图片',
+        dataUrl: info.dataUrl,
+      },
+      maxWidth: 'min(1000px, 95vw)',
+      width: 'min(1000px, 95vw)',
+    });
+  }
+
+  protected openBase64Text(): void {
+    if (this.nodeType() !== 'string') return;
+
+    this.dialog.open(JsonStringDialogComponent, {
+      data: {
+        title: typeof this.nodeKey === 'string' ? this.nodeKey : '内容',
+        value: this.value as string,
+      },
+      maxWidth: 'min(900px, 95vw)',
+      width: 'min(900px, 95vw)',
+    });
   }
 
   protected openFullString(): void {

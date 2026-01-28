@@ -28,6 +28,33 @@
 
                 @if (nodeType() === 'string') {
                 <span class="font-mono inline-flex items-center gap-1 max-w-full {{ typeClass() }}">
+                    @if (imageInfo(); as img) {
+                    @if (stringTags().length) {
+                    <span class="inline-flex items-center gap-0.5 shrink-0">
+                        @for (tag of stringTags(); track tag.kind) {
+                        <span
+                            class="text-[8px] leading-3 uppercase tracking-normal px-1 py-0.5 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200"
+                            [style.backgroundColor]="tag.kind === 'color' ? colorCss(tag) : null"
+                            [style.color]="tag.kind === 'color' ? tag.textColor : null">
+                            {{ tag.label }}
+                        </span>
+                        }
+                    </span>
+                    }
+
+                    <span class="block min-w-0 max-w-full whitespace-nowrap" title="base64 image">
+                        {{ displayImageString() }}
+                    </span>
+
+                    <span class="inline-flex items-center gap-1 shrink-0">
+                        <button type="button"
+                            class="h-6 px-2 text-[11px] rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            (click)="openImagePreview(img)">show</button>
+                        <button type="button"
+                            class="h-6 px-2 text-[11px] rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800"
+                            (click)="openBase64Text()">text</button>
+                    </span>
+                    } @else {
                     @if (stringTags().length) {
                     <span class="inline-flex items-center gap-0.5 shrink-0">
                         @for (tag of stringTags(); track tag.kind) {
@@ -62,6 +89,7 @@
                     @if (timeDisplay()) {
                     <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono shrink-0">{{ timeDisplay()
                         }}</span>
+                    }
                     }
                 </span>
                 } @else if (nodeType() === 'number') {

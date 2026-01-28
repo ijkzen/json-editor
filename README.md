@@ -20,6 +20,7 @@ A lightweight JSON text editor + tree viewer built with Angular 21 (standalone),
 	- `link`: detects `http(s)://...` (and `www.`) and opens in a new tab.
 	- `email`: detects emails and opens via `mailto:`.
 	- `phone`: detects phone-like strings/numbers.
+	- `IMG`: detects base64 images (`data:image/...;base64,...` or raw base64 with common image headers). Shows `show` (preview) and `text` (view base64) actions.
 	- `color`: detects common CSS color formats: `#RGB/#RGBA/#RRGGBB/#RRGGBBAA`, `rgb()/rgba()`, `hsl()/hsla()`, and `0xAARRGGBB`.
 	  - Note: `#` 8-digit hex can be ambiguous; the tree can interpret it as `#RRGGBBAA` (RGBA) or `#AARRGGBB` (ARGB) based on settings.
 - Settings dialog (dark mode + tag toggles); preferences persist to `localStorage`.

@@ -4,6 +4,12 @@ export type StringTag =
   | { kind: 'link'; label: 'link' }
   | { kind: 'email'; label: 'email' }
   | {
+      kind: 'image';
+      label: 'IMG';
+      mime: string;
+      dataUrl: string;
+    }
+  | {
       kind: 'color';
       label: 'color';
       raw: string;
@@ -14,6 +20,11 @@ export type StringTag =
 
 export function getStringTags(value: string): StringTag[] {
   const tags: StringTag[] = [];
+
+  const img = parseBase64Image(value);
+  if (img) {
+    tags.push({ kind: 'image', label: 'IMG', mime: img.mime, dataUrl: img.dataUrl });
+  }
 
   if (looksLikePhone(value)) {
     tags.push({ kind: 'phone', label: 'phone' });
@@ -37,6 +48,56 @@ export function getStringTags(value: string): StringTag[] {
   }
 
   return tags;
+}
+
+export type ParsedBase64Image = {
+  mime: string;
+  dataUrl: string;
+};
+
+export function parseBase64Image(value: string): ParsedBase64Image | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  // Data URL: data:image/<type>;base64,<payload>
+  const dataUrlMatch = /^data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+)$/.exec(trimmed);
+  if (dataUrlMatch) {
+    const mime = dataUrlMatch[1];
+    const payload = dataUrlMatch[2].replace(/\s+/g, '');
+    if (!looksLikeBase64Payload(payload)) return null;
+    return { mime, dataUrl: `data:${mime};base64,${payload}` };
+  }
+
+  // Raw base64 (no prefix). Heuristics based on common magic headers.
+  const raw = trimmed.replace(/\s+/g, '');
+  if (!looksLikeBase64Payload(raw)) return null;
+
+  const mime = guessImageMimeFromBase64Prefix(raw);
+  if (!mime) return null;
+  return { mime, dataUrl: `data:${mime};base64,${raw}` };
+}
+
+function looksLikeBase64Payload(payload: string): boolean {
+  // Avoid false positives: too short and/or not base64-ish.
+  if (payload.length < 64) return false;
+  if (payload.length % 4 !== 0) return false;
+  return /^[A-Za-z0-9+/]+={0,2}$/.test(payload);
+}
+
+function guessImageMimeFromBase64Prefix(payload: string): string | null {
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (payload.startsWith('iVBORw0KGgo')) return 'image/png';
+  // JPEG: FF D8 FF
+  if (payload.startsWith('/9j/')) return 'image/jpeg';
+  // GIF: GIF87a / GIF89a
+  if (payload.startsWith('R0lGOD')) return 'image/gif';
+  // WEBP: RIFF....WEBP
+  if (payload.startsWith('UklGR')) return 'image/webp';
+  // BMP: BM
+  if (payload.startsWith('Qk')) return 'image/bmp';
+  // ICO: 00 00 01 00
+  if (payload.startsWith('AAABAA')) return 'image/x-icon';
+  return null;
 }
 
 export function getNumberTags(value: number): StringTag[] {

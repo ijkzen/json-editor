@@ -33,6 +33,7 @@ const SAMPLE_JSON = `{
     "createdAtSecStr": "1759251661",
     "isoTimeUtc": "2026-01-29T07:30:45.333Z",
     "isoTimeOffset": "2026-01-29T15:30:45.333+08:00",
+    "avatarPngBase64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/Pz0o2QAAAABJRU5ErkJggg==",
     "tags": ["dev", "music", "#22c55e"],
     "profile": null
   },

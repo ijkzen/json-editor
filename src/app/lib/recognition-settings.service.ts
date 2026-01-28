@@ -1,6 +1,6 @@
 import { Injectable, effect, signal } from '@angular/core';
 
-export type RecognitionKind = 'phone' | 'time' | 'email' | 'link' | 'color';
+export type RecognitionKind = 'phone' | 'time' | 'email' | 'link' | 'image' | 'color';
 export type ColorFormat = 'rgba' | 'argb';
 
 type RecognitionSettingsState = {
@@ -9,6 +9,7 @@ type RecognitionSettingsState = {
   timeShowFormatted: boolean;
   email: boolean;
   link: boolean;
+  image: boolean;
   color: boolean;
   colorFormat: ColorFormat;
 };
@@ -21,6 +22,7 @@ const DEFAULT_STATE: RecognitionSettingsState = {
   timeShowFormatted: true,
   email: true,
   link: true,
+  image: true,
   color: true,
   colorFormat: 'rgba',
 };
@@ -32,6 +34,7 @@ export class RecognitionSettingsService {
   readonly timeShowFormatted = signal(DEFAULT_STATE.timeShowFormatted);
   readonly email = signal(DEFAULT_STATE.email);
   readonly link = signal(DEFAULT_STATE.link);
+  readonly image = signal(DEFAULT_STATE.image);
   readonly color = signal(DEFAULT_STATE.color);
   readonly colorFormat = signal<ColorFormat>(DEFAULT_STATE.colorFormat);
 
@@ -45,6 +48,7 @@ export class RecognitionSettingsService {
         timeShowFormatted: this.timeShowFormatted(),
         email: this.email(),
         link: this.link(),
+        image: this.image(),
         color: this.color(),
         colorFormat: this.colorFormat(),
       };
@@ -66,6 +70,8 @@ export class RecognitionSettingsService {
         return this.email();
       case 'link':
         return this.link();
+      case 'image':
+        return this.image();
       case 'color':
         return this.color();
       default:
@@ -85,6 +91,7 @@ export class RecognitionSettingsService {
       if (typeof parsed.timeShowFormatted === 'boolean') this.timeShowFormatted.set(parsed.timeShowFormatted);
       if (typeof parsed.email === 'boolean') this.email.set(parsed.email);
       if (typeof parsed.link === 'boolean') this.link.set(parsed.link);
+      if (typeof parsed.image === 'boolean') this.image.set(parsed.image);
       if (typeof parsed.color === 'boolean') this.color.set(parsed.color);
 
       if (parsed.colorFormat === 'rgba' || parsed.colorFormat === 'argb') {

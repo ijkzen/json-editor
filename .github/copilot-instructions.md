@@ -23,7 +23,7 @@
 - Tree rendering is recursive:
 	- `JsonTreeComponent` → `JsonNodeComponent` (`src/app/components/json-tree/*`).
 	- `JsonNodeComponent` uses `getJsonNodeType()` from `src/app/lib/json-types.ts` and expands only depth 0 by default.
-- “Smart tags” (time/link/email/phone/color) come from `src/app/lib/string-tags.ts`.
+- “Smart tags” (time/link/email/phone/color/IMG) come from `src/app/lib/string-tags.ts`.
 - Tag toggles are persisted in `RecognitionSettingsService` (`src/app/lib/recognition-settings.service.ts`) using signals + an `effect()` writing to `localStorage`.
 
 ## Local conventions to follow
@@ -45,4 +45,5 @@
 ## Where to implement changes
 - New recognition logic: edit `src/app/lib/string-tags.ts` and gate it via `RecognitionSettingsService.isEnabled()`.
 - Tree UI behavior (expand/collapse, formatting, links): `src/app/components/json-tree/json-node.component.ts|.html`.
+- Base64 image preview dialog: `src/app/components/json-tree/json-image-dialog.component.ts`.
 - Editor behavior (highlighting/scroll sync): `src/app/components/json-text-editor/*`.
